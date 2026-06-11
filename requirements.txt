@@ -1,0 +1,42 @@
+# Core Django
+Django==4.2.11
+djangorestframework==3.14.0
+django-cors-headers==4.3.1
+django-environ==0.11.2
+
+# Database (Supabase PostgreSQL)
+psycopg2-binary==2.9.9
+
+# Authentication (Django built-in - no extra packages)
+
+# Caching & Queues
+redis==5.0.1
+django-redis==5.4.0
+celery==5.3.6
+django-celery-beat==2.5.0
+
+# HTTP Client & Scraping
+requests==2.31.0
+beautifulsoup4==4.12.3
+lxml==5.1.0
+selenium==4.18.1  # For JavaScript-heavy sites
+
+# PDF Generation
+reportlab==4.0.7
+WeasyPrint==61.0  # Alternative to ReportLab
+
+# Paystack Integration
+paystackapi==2.0.0  # Unofficial but popular
+
+# Supabase Storage
+supabase==2.1.0
+
+# Monitoring
+sentry-sdk==1.40.6
+
+# API Documentation
+drf-spectacular==0.27.1
+
+# Utilities
+python-dotenv==1.0.1
+Pillow==10.1.0
