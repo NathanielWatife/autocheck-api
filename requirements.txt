@@ -5,7 +5,7 @@ django-cors-headers==4.3.1
 django-environ==0.11.2
 
 # Database (Supabase PostgreSQL)
-psycopg2-binary==2.9.9
+psycopg2-binary>=2.9.9
 
 # Caching & Queues
 redis==5.0.1
@@ -16,7 +16,7 @@ django-celery-beat==2.5.0
 # HTTP Client & Scraping
 requests==2.31.0
 beautifulsoup4==4.12.3
-lxml==5.1.0
+lxml>=5.1.0
 selenium==4.18.1
 
 # PDF Generation (Windows-compatible)
@@ -39,7 +39,7 @@ drf-spectacular==0.27.1
 python-dotenv==1.0.1
 
 # Pillow - Use pre-compiled Windows wheel
-pillow==10.1.0
+pillow>=10.1.0
 
 # Additional Windows-friendly packages
 urllib3==2.0.7

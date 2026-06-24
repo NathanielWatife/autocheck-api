@@ -47,7 +47,7 @@ class OwnershipTraceAdmin(admin.ModelAdmin):
 
 @admin.register(VehicleEnrichmentQueue)
 class VehicleEnrichmentQueueAdmin(admin.ModelAdmin):
-    list_display = ('vin', 'status', 'priority', 'retry_count', 'created_at', 'processed_at')
+    list_display = ('vin', 'status', 'priority', 'retry_count', 'requested_at', 'processed_at')
     list_filter = ('status', 'priority')
     search_fields = ('vin',)
-    readonly_fields = ('created_at', 'processed_at')
+    readonly_fields = ('requested_at', 'processed_at')
