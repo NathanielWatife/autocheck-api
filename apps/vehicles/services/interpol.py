@@ -1,5 +1,8 @@
 import requests
 import logging
+import os
+from pathlib import Path
+from dotenv import load_dotenv
 from django.core.cache import cache
 
 logger = logging.getLogger(__name__)

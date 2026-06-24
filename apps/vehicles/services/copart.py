@@ -2,7 +2,6 @@ import requests
 import os
 from pathlib import Path
 from dotenv import load_dotenv
-import environ
 import logging
 import time
 import random
