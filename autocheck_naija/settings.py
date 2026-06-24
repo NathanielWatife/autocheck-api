@@ -36,19 +36,14 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
 
     # THIRD PARTY APPS
-    'rest_frameworks',
+    'rest_framework',
     'corsheaders',
     'drf_spectacular',
     'django_celery_beat',
 
     # LOCAL APPS
     'apps.accounts',
-    'apps.vehicle',
-    'apps.scraping',
-    'apps.payments',
-    'apps.common',
-    'apps.reports',
-
+    'apps.vehicles',
 ]
 
 MIDDLEWARE = [
