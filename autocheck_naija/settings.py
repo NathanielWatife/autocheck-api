@@ -36,11 +36,14 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
 
     # THIRD PARTY APPS
-    'rest_frameworks',
+    'rest_framework',
     'corsheaders',
     'drf_spectacular',
     'django_celery_beat',
 
+    # LOCAL APPS
+    'apps.accounts',
+    'apps.vehicles',
 ]
 
 MIDDLEWARE = [
@@ -151,8 +154,16 @@ CORS_ALLOW_CREDENTIALS = True
 CORS_ALLOW_METHODS = ['GET', 'PUT', 'POST', 'DELETE', 'OPTIONS']
 CORS_ALLOW_HEADERS = ['accept', 'accept-encoding', 'authorization', 'content-type', 'cookies', 'csrfmiddlewaretoken']
 
-# Session Configuration (using Django built-in session)
-SESSION_ENGINE = 'django.contrib.sessions.backends.cached_db'
+# Detect whether a real Redis URL is configured
+_REDIS_URL = os.getenv('REDIS_URL', '')
+_REDIS_AVAILABLE = bool(_REDIS_URL) and not _REDIS_URL.startswith('rediss://:password')
+
+# Session Configuration — DB sessions when Redis is not available
+SESSION_ENGINE = (
+    'django.contrib.sessions.backends.cached_db'
+    if _REDIS_AVAILABLE
+    else 'django.contrib.sessions.backends.db'
+)
 SESSION_COOKIE_AGE = 7 * 24 * 60 * 60  # 7 days
 SESSION_COOKIE_SECURE = not DEBUG
 SESSION_COOKIE_HTTPONLY = True
@@ -187,17 +198,24 @@ SPECTACULAR_SETTINGS = {
     'SERVE_INCLUDE_SCHEMA': False,
 }
 
-# Redis Cache
-CACHES = {
-    'default': {
-        'BACKEND': 'django_redis.cache.RedisCache',
-        'LOCATION': os.getenv('REDIS_URL'),
-        'OPTIONS': {
-            'CLIENT_CLASS': 'django_redis.client.DefaultClient',
-            'PARSER_CLASS': 'redis.connection.HiredisParser',
+# Redis Cache — fall back to local-memory cache when Redis URL is not configured
+if _REDIS_AVAILABLE:
+    CACHES = {
+        'default': {
+            'BACKEND': 'django_redis.cache.RedisCache',
+            'LOCATION': _REDIS_URL,
+            'OPTIONS': {
+                'CLIENT_CLASS': 'django_redis.client.DefaultClient',
+                # HiredisParser was removed in redis-py >= 5.0; omit to use the default
+            },
         }
     }
-}
+else:
+    CACHES = {
+        'default': {
+            'BACKEND': 'django.core.cache.backends.locmem.LocMemCache',
+        }
+    }
 
 # Celery Configuration
 CELERY_BROKER_URL = os.getenv('REDIS_URL', 'redis://localhost:6379/0')
@@ -219,12 +237,12 @@ SUPABASE_SERVICE_KEY = os.getenv('SUPABASE_SERVICE_KEY')
 
 # Email Configuration
 EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
-EMAIL_HOST = os.getenv('EMAIL_HOST', 'smtp.gmail.com')
-EMAIL_PORT = int(os.getenv('EMAIL_PORT', 587))
-EMAIL_USE_TLS = os.getenv('EMAIL_USE_TLS', 'True') == 'True'
-EMAIL_HOST_USER = os.getenv('EMAIL_HOST_USER', '')
-EMAIL_HOST_PASSWORD = os.getenv('EMAIL_HOST_PASSWORD', '')
-DEFAULT_FROM_EMAIL = os.getenv('DEFAULT_FROM_EMAIL', 'noreply@autochecknaija.com')
+EMAIL_HOST = os.getenv('EMAIL_HOST')
+EMAIL_PORT = int(os.getenv('EMAIL_PORT'))
+EMAIL_USE_TLS = os.getenv('EMAIL_USE_TLS') == 'True'
+EMAIL_HOST_USER = os.getenv('EMAIL_HOST_USER')
+EMAIL_HOST_PASSWORD = os.getenv('EMAIL_HOST_PASSWORD')
+DEFAULT_FROM_EMAIL = os.getenv('DEFAULT_FROM_EMAIL')
 
 # Logging Configuration
 LOGGING = {
