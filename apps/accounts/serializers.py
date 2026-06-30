@@ -1,3 +1,4 @@
+import uuid
 from rest_framework import serializers
 from django.contrib.auth import get_user_model
 from django.contrib.auth.password_validation import validate_password
@@ -24,29 +25,39 @@ class UserProfileSerializer(serializers.ModelSerializer):
 class UserRegistrationSerializer(serializers.ModelSerializer):
     password = serializers.CharField(write_only=True, required=True, validators=[validate_password])
     password2 = serializers.CharField(write_only=True, required=True)
-    phone_number = serializers.CharField(required=True, allow_blank=False)
+    phone_number = serializers.CharField(required=False, allow_blank=True, default="")
+    nin = serializers.CharField(required=False, allow_blank=True, default="")
 
     class Meta:
         model = User
         fields = ('username', 'password', 'password2', 'email', 'first_name', 'last_name', 'phone_number', 'nin')
 
-        def validate(self, attrs):
-            if attrs['password'] != attrs['password2']:
-                raise serializers.ValidationError({"password": "Password fields didn't match."})
-            return attrs
+    def validate(self, attrs):
+        if attrs['password'] != attrs['password2']:
+            raise serializers.ValidationError({"password": "Password fields didn't match."})
+        return attrs
 
-        def create(self, validated_data):
-            validated_data.pop('password2')
-            user = User.objects.create_user(
-                username=validated_data['username'],
-                email=validated_data.get('email', ''),
-                password=validated_data['password'],
-                first_name=validated_data.get('first_name', ''),
-                last_name=validated_data.get('last_name', ''),
-                phone_number=validated_data.get('phone_number', ''),
-                nin=validated_data.get('nin', '')
-            )
-            return user
+    def create(self, validated_data):
+        validated_data.pop('password2')
+        nin = validated_data.get('nin') or ''
+        # NIN is unique; generate a placeholder if not supplied
+        if not nin:
+            nin = str(uuid.uuid4()).replace('-', '')[:11]
+        user = User.objects.create_user(
+            username=validated_data['username'],
+            email=validated_data.get('email', ''),
+            password=validated_data['password'],
+            first_name=validated_data.get('first_name', ''),
+            last_name=validated_data.get('last_name', ''),
+            phone_number=validated_data.get('phone_number', ''),
+            nin=nin,
+        )
+        return user
+
+
+# Aliases used in views
+RegisterSerializer = UserRegistrationSerializer
+
 
 class LoginSerializer(serializers.Serializer):
     username = serializers.CharField(required=True)
@@ -64,6 +75,9 @@ class PasswordChangeSerializer(serializers.Serializer):
 
 class PasswordResetSerializer(serializers.Serializer):
     email = serializers.EmailField(required=True)
+
+# Alias used in views
+PasswordResetRequestSerializer = PasswordResetSerializer
 
 class PasswordResetConfirmSerializer(serializers.Serializer):
     uid = serializers.CharField(required=True)
